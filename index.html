@@ -4,21 +4,51 @@
 <title>TofaGPT</title>
 
 <style>
+
 body{
-font-family: Arial;
+font-family:Arial;
 background:#0f172a;
 color:white;
-text-align:center;
-padding:60px;
+display:flex;
+flex-direction:column;
+align-items:center;
+height:100vh;
+margin:0;
 }
 
 h1{
-font-size:40px;
+margin-top:20px;
+}
+
+#chat{
+width:600px;
+height:400px;
+background:#020617;
+border-radius:10px;
+padding:20px;
+overflow-y:auto;
+margin-top:20px;
+}
+
+.message{
+margin-bottom:15px;
+}
+
+.user{
+color:#22c55e;
+}
+
+.ai{
+color:#38bdf8;
+}
+
+#inputArea{
+margin-top:20px;
 }
 
 input{
 padding:12px;
-width:300px;
+width:400px;
 border-radius:8px;
 border:none;
 }
@@ -32,36 +62,50 @@ cursor:pointer;
 margin-left:10px;
 }
 
-#response{
-margin-top:30px;
-font-size:18px;
-color:#38bdf8;
-}
 </style>
-
 </head>
 
 <body>
 
 <h1>🤖 TofaGPT</h1>
-<p>Ask anything and get smart answers</p>
 
-<input id="question" placeholder="Ask TofaGPT something...">
-<button onclick="ask()">Ask</button>
+<div id="chat"></div>
 
-<div id="response"></div>
+<div id="inputArea">
+
+<input id="question" placeholder="Ask TofaGPT...">
+
+<button onclick="ask()">Send</button>
+
+</div>
 
 <script>
 
-function ask(){
-let q=document.getElementById("question").value;
+async function ask(){
 
-if(q==""){
-alert("Type a question");
-return;
-}
+let q = document.getElementById("question").value;
 
-document.getElementById("response").innerHTML="Thinking about: "+q;
+if(q=="") return;
+
+let chat = document.getElementById("chat");
+
+chat.innerHTML += "<div class='message user'>You: "+q+"</div>";
+
+document.getElementById("question").value="";
+
+let res = await fetch("http://localhost:3000/ask",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({question:q})
+});
+
+let data = await res.json();
+
+chat.innerHTML += "<div class='message ai'>TofaGPT: "+data.answer+"</div>";
+
+chat.scrollTop = chat.scrollHeight;
 
 }
 
